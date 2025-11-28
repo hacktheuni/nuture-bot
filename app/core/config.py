@@ -7,7 +7,6 @@ class Settings(BaseSettings):
 
     # Database
     SYNC_CONNECTION_STRING: str
-    ASYNC_CONNECTION_STRING: str
     SUPABASE_URL: str
     SUPABASE_KEY: str
 
