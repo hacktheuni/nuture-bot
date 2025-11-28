@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot - Nuture Bot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            height: 90vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .login-section {
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+        }
+
+        .auth-toggle {
+            text-align: center;
+            margin-top: 16px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .auth-toggle a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .auth-toggle a:hover {
+            text-decoration: underline;
+        }
+
+        .login-form {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .chat-container {
+            display: none;
+            flex-direction: column;
+            height: 93%;
+        }
+
+        .chat-container.active {
+            display: flex !important;
+            flex-direction: column;
+            height: 93%;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.ai {
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.ai .message-content {
+            background: white;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            border-bottom-left-radius: 4px;
+        }
+
+        .input-area {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 24px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .send-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .send-btn:active {
+            transform: translateY(0);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 12px 16px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            max-width: 70px;
+        }
+
+        .typing-indicator.active {
+            display: block;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            background: #999;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+            }
+
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Nuture Bot - AI Chat Assistant</h1>
+        </div>
+
+        <div class="login-section" id="loginSection">
+            <form class="login-form" id="loginForm" style="display: block;">
+                <h2 style="text-align: center; margin-bottom: 24px; color: #333;">Login</h2>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Enter your password">
+                </div>
+                <button type="submit" class="btn" id="loginBtn">Login</button>
+                <div class="auth-toggle">
+                    Don't have an account? <a id="showRegister">Register</a>
+                </div>
+                <div id="loginError" class="error-message" style="display: none; margin-top: 16px;"></div>
+            </form>
+
+            <form class="login-form" id="registerForm" style="display: none;">
+                <h2 style="text-align: center; margin-bottom: 24px; color: #333;">Register</h2>
+                <div class="form-group">
+                    <label for="regFirstName">First Name</label>
+                    <input type="text" id="regFirstName" name="firstName" required placeholder="Enter your first name">
+                </div>
+                <div class="form-group">
+                    <label for="regLastName">Last Name</label>
+                    <input type="text" id="regLastName" name="lastName" required placeholder="Enter your last name">
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Email</label>
+                    <input type="email" id="regEmail" name="email" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Password</label>
+                    <input type="password" id="regPassword" name="password" required placeholder="Enter your password">
+                    <small style="color: #666; font-size: 12px; margin-top: 4px; display: block;">
+                        Must be at least 8 characters, with uppercase, lowercase, and a digit
+                    </small>
+                </div>
+                <button type="submit" class="btn" id="registerBtn">Register</button>
+                <div class="auth-toggle">
+                    Already have an account? <a id="showLogin">Login</a>
+                </div>
+                <div id="registerError" class="error-message" style="display: none; margin-top: 16px;"></div>
+            </form>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="messages" id="messages"></div>
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            <div class="input-area">
+                <input type="text" class="input-field" id="messageInput" placeholder="Type your message here..."
+                    autocomplete="off">
+                <button class="send-btn" id="sendBtn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration - Update this if your backend runs on a different port
+        const API_BASE_URL = 'http://localhost:8000';
+        let accessToken = null;
+
+        // Check if user is already logged in
+        function checkAuth() {
+            const token = localStorage.getItem('access_token');
+            if (token) {
+                accessToken = token;
+                showChat();
+            }
+        }
+
+        // Show login form
+        function showLogin() {
+            document.getElementById('loginSection').style.display = 'flex';
+            document.getElementById('chatContainer').classList.remove('active');
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+        }
+
+        // Show registration form
+        function showRegister() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+        }
+
+        // Show chat interface
+        function showChat() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('chatContainer').classList.add('active');
+            document.getElementById('chatContainer').style.display = 'flex';
+            // Load message history when chat interface is shown
+            loadMessageHistory();
+        }
+
+        // Load message history from API
+        async function loadMessageHistory() {
+            if (!accessToken) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/user/get-all-messages`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const messages = await response.json();
+                    const messagesDiv = document.getElementById('messages');
+                    
+                    // Clear existing messages
+                    messagesDiv.innerHTML = '';
+
+                    // Display messages in chronological order
+                    if (messages && messages.length > 0) {
+                        messages.forEach(msg => {
+                            const msgType = String(msg.type).toLowerCase();
+                            const isUser = msgType === 'human' || msgType.includes('human');
+                            addMessage(msg.content, isUser, false);
+                        });
+                    }
+
+                    // Ensure chat container is properly displayed
+                    document.getElementById('chatContainer').style.display = 'flex';
+                    document.getElementById('chatContainer').classList.add('active');
+                    
+                    // Scroll to bottom after loading all messages
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                } else if (response.status === 401) {
+                    localStorage.removeItem('access_token');
+                    accessToken = null;
+                    showLogin();
+                    alert('Session expired. Please login again.');
+                }
+            } catch (error) {
+                console.error('Failed to load message history:', error);
+            }
+        }
+
+        // Toggle between login and registration
+        document.getElementById('showRegister').addEventListener('click', (e) => {
+            e.preventDefault();
+            showRegister();
+        });
+
+        document.getElementById('showLogin').addEventListener('click', (e) => {
+            e.preventDefault();
+            showLogin();
+        });
+
+        // Registration form handler
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const firstName = document.getElementById('regFirstName').value;
+            const lastName = document.getElementById('regLastName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const registerBtn = document.getElementById('registerBtn');
+            const errorDiv = document.getElementById('registerError');
+
+            registerBtn.disabled = true;
+            registerBtn.innerHTML = '<span class="loading"></span> Registering...';
+            errorDiv.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password,
+                        first_name: firstName,
+                        last_name: lastName
+                    }),
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    accessToken = data.data.access_token;
+                    localStorage.setItem('access_token', accessToken);
+                    showChat();
+                } else {
+                    errorDiv.textContent = data.detail || 'Registration failed. Please try again.';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Network error. Please check if the API server is running.';
+                errorDiv.style.display = 'block';
+            } finally {
+                registerBtn.disabled = false;
+                registerBtn.textContent = 'Register';
+            }
+        });
+
+        // Login form handler
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const errorDiv = document.getElementById('loginError');
+
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<span class="loading"></span> Logging in...';
+            errorDiv.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login/email`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    accessToken = data.data.access_token;
+                    localStorage.setItem('access_token', accessToken);
+                    showChat();
+                } else {
+                    errorDiv.textContent = data.detail || 'Login failed. Please try again.';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Network error. Please check if the API server is running.';
+                errorDiv.style.display = 'block';
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Login';
+            }
+        });
+
+        // Add message to chat
+        function addMessage(content, isUser, autoScroll = true) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'ai'}`;
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+
+            if (isUser) {
+                // For user messages, keep as plain text
+                contentDiv.textContent = content;
+            } else {
+                // For AI messages, render formatted content
+                // Convert markdown-style formatting to HTML
+                const formattedContent = content
+                    .replace(/\n/g, '<br>') // Convert newlines to <br>
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Convert **text** to bold
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>') // Convert *text* to italic
+                    .replace(/`(.*?)`/g, '<code>$1</code>'); // Convert `text` to code
+
+                contentDiv.innerHTML = formattedContent;
+            }
+
+            messageDiv.appendChild(contentDiv);
+            messagesDiv.appendChild(messageDiv);
+
+            if (autoScroll) {
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
+        }
+
+        // Show typing indicator
+        function showTyping() {
+            document.getElementById('typingIndicator').classList.add('active');
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Hide typing indicator
+        function hideTyping() {
+            document.getElementById('typingIndicator').classList.remove('active');
+        }
+
+        // Send message to API
+        async function sendMessage(message) {
+            const sendBtn = document.getElementById('sendBtn');
+            const inputField = document.getElementById('messageInput');
+
+            sendBtn.disabled = true;
+            inputField.disabled = true;
+            showTyping();
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/chat/query`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    },
+                    body: JSON.stringify({ message: message }),
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    addMessage(data.ai_response, false);
+                } else {
+                    if (response.status === 401) {
+                        // Token expired, show login
+                        localStorage.removeItem('access_token');
+                        accessToken = null;
+                        showLogin();
+                        alert('Session expired. Please login again.');
+                    } else {
+                        addMessage(`Error: ${data.detail || 'Failed to get response'}`, false);
+                    }
+                }
+            } catch (error) {
+                addMessage('Network error. Please check if the API server is running.', false);
+            } finally {
+                hideTyping();
+                sendBtn.disabled = false;
+                inputField.disabled = false;
+                inputField.focus();
+            }
+        }
+
+        // Send button handler
+        document.getElementById('sendBtn').addEventListener('click', () => {
+            const inputField = document.getElementById('messageInput');
+            const message = inputField.value.trim();
+
+            if (message && accessToken) {
+                addMessage(message, true);
+                inputField.value = '';
+                sendMessage(message);
+            }
+        });
+
+        // Enter key handler
+        document.getElementById('messageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('sendBtn').click();
+            }
+        });
+
+        // Initialize
+        checkAuth();
+    </script>
+</body>
+
+</html>
