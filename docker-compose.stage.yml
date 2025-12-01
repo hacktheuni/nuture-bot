@@ -1,4 +1,3 @@
-# docker-compose.stage.yml
 version: '3.9'
 
 services:
@@ -10,5 +9,22 @@ services:
     env_file:
       - .env
     ports:
-      - "80:8000"
+      - "8000:8000"
     restart: always
+    networks:
+      - nuture-bot-network
+
+  nginx:
+    build: ./nginx
+    image: nginx
+    container_name: "nginx_cont"
+    ports:
+      - "80:80"
+    restart: always
+    depends_on:
+      - api
+    networks:
+      - nuture-bot-network
+
+networks:
+  nuture-bot-network:
