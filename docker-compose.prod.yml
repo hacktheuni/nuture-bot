@@ -1,11 +1,11 @@
 version: '3.9'
 
 services:
-  nuture_bot_stage:
+  nuture_bot_prod:
     build:
       context: .
       dockerfile: Dockerfile.stage
-    container_name: nuture_bot_stage
+    container_name: nuture_bot_prod
     env_file:
       - .env
     ports:
@@ -15,14 +15,21 @@ services:
       - nuture-bot-network
 
   nginx:
-    build: ./nginx_stage
+    build: ./nginx_prod
     image: nginx
     container_name: nginx
     ports:
       - "80:80"
-    restart: always
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/html:/var/www/certbot:ro
+      - ./letsencrypt:/etc/letsencrypt  
+      - ./letsencrypt-data:/var/lib/letsencrypt
+      - ./nginx/dhparam:/etc/nginx/dhparam:ro
     depends_on:
-      - nuture_bot_stage
+      - nuture_bot_prod
+    restart: always
     networks:
       - nuture-bot-network
 
