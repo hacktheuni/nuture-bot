@@ -8,15 +8,7 @@ services:
       dockerfile: Dockerfile.stage
     container_name: nuture_bot_stage
     env_file:
-      - .env.stage
+      - .env
     ports:
-      - "8000:8000"
-    restart: unless-stopped
-
-    # If you encounter the IPv6-only DNS issue in your environment, you can either:
-    # 1) use host networking (Linux) by uncommenting the next line:
-    #    network_mode: "host"
-    # OR
-    # 2) set an extra_hosts mapping to the IPv4 address of the DB (replace 1.2.3.4):
-    #    extra_hosts:
-    #      - "db.qellsufmvubodsaeopzu.supabase.co:1.2.3.4"
+      - "80:8000"
+    restart: always

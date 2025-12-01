@@ -7,11 +7,7 @@ services:
       dockerfile: Dockerfile.dev
     container_name: nuture_bot_dev
     env_file:
-      - .env.development    
+      - .env   
     ports:
       - "8000:8000"
-    network_mode: "host"  
     restart: always
-    # If you cannot use host mode (Windows/macOS), comment network_mode and add extra_hosts below:
-    # extra_hosts:
-    #   - "db.qellsufmvubodsaeopzu.supabase.co:1.2.3.4"
